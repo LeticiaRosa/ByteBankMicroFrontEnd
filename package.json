@@ -1,34 +1,15 @@
 {
-  "name": "byte-bank",
-  "version": "0.1.0",
-  "private": true,
+  "name": "bytebank-microfrontend",
+  "version": "1.0.0",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@hookform/resolvers": "^5.0.1",
-    "next": "15.3.2",
-    "phosphor-react": "^1.4.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-hook-form": "^7.56.4",
-    "react-toastify": "^11.0.5",
-    "zod": "^3.25.8"
+    "dev:dashboard": "pnpm --filter dashboard run dev",
+    "dev:main-app": "pnpm --filter main-app run dev",
+    "dev:all": "concurrently -k -n dash,main  \"pnpm dev:dashboard\" \"pnpm dev:main-app\"",
+    "build": "pnpm -r run build",
+    "deploy:api": "cd json-server && vercel --prod",
+    "deploy:all": "cd json-server && vercel --prod && cd ../dashboard && vercel --prod && cd ../main-app && vercel --prod"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "autoprefixer": "^10.4.21",
-    "eslint": "^9",
-    "eslint-config-next": "15.3.2",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^4.1.6",
-    "typescript": "^5"
+    "concurrently": "^9.2.0"
   }
 }

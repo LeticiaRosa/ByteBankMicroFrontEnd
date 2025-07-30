@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  body {
+    @apply bg-background-color w-screen h-screen m-0 p-0 overflow-x-hidden text-size-14;
+  }
+  .center {
+    @apply flex items-center justify-center;
+  }
+
+  .container {
+    @apply flex flex-col justify-end px-4 max-w-250 gap-6 md:flex-row;
+  }
+  .container-page {
+    @apply flex flex-col md:flex-row gap-6 w-full;
+  }
+
+  .title {
+    @apply text-size-25 font-semibold text-verde;
+  }
+  .menu {
+    @apply flex-col bg-transparent rounded-md md:shadow-lg text-verde gap-10 md:p-4 md:bg-white xs:flex hidden;
+  }
+  .menu-open {
+    @apply flex flex-col bg-white flex-1 fixed left-0 top-0 p-4 z-30 shadow-lg rounded-md;
+  }
+
+  .menu-open ul {
+    @apply flex flex-col gap-8;
+  }
+  .modal {
+    @apply fixed inset-0 bg-black/20 backdrop-blur-xs z-10;
+  }
+  .line {
+    @apply w-24 h-0.5 bg-preto border-0 rounded-sm hover:bg-verde-claro;
+  }
+  .card {
+    @apply flex flex-col items-start justify-start bg-white rounded-md shadow-lg text-black p-4;
+  }
+  .campo {
+    @apply flex flex-col py-2 gap-1 md:gap-2;
+  }
+  .campo-input {
+    @apply h-10 border-2 border-verde-claro bg-white rounded-md p-2 text-black text-start focus:border-verde focus:outline-none text-size-14;
+  }
+  .btn {
+    @apply bg-verde text-white rounded-md p-2 md:px-4 text-center font-semibold cursor-pointer transition-colors duration-300 ease-in-out hover:bg-verde-claro min-w-45;
+  }
+  .btn-secoundary {
+    @apply bg-white text-verde rounded-md p-2 md:px-4 text-center font-semibold cursor-pointer transition-colors duration-300 ease-in-out hover:bg-verde-claro hover:text-white;
+  }
+  .btn-outline {
+    @apply border border-white text-black rounded-md p-2 md:px-4 text-center font-semibold cursor-pointer transition-colors duration-300 ease-in-out hover:bg-cinza;
+  }
+  .btn-icon {
+    @apply bg-verde text-white rounded-full p-2 mt-2 text-center font-semibold cursor-pointer transition-colors duration-300 ease-in-out hover:bg-verde-claro;
+  }
+  .btn-danger {
+    @apply bg-erro text-white rounded-md py-2 px-4 text-center font-semibold cursor-pointer transition-colors duration-300 ease-in-out hover:bg-red-500;
+  }
+  .link {
+    @apply text-white font-semibold text-size-14 xs:text-size-16 cursor-pointer;
+  }
+  .link-secoundary {
+    @apply text-verde font-semibold text-size-16 cursor-pointer;
+  }
+  .transacoes {
+    @apply flex flex-col items-start justify-start gap-4 min-w-42;
+
+    .mes-group {
+      @apply text-verde font-semibold text-size-16 py-2;
+    }
+
+    .transacao-item {
+      @apply flex flex-col items-start justify-start;
+
+      h6 {
+        @apply font-bold;
+      }
+    }
+  }
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
