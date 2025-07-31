@@ -21,10 +21,10 @@ module.exports = {
         "magenta-grafico": "#ff3c82",
       },
       screens: {
-        xs: { max: "30rem" },
-        "3xl": { max: "120rem" },
-        tablet: { max: "1080px" },
-        mobile: { max: "620px" },
+        xs: { min: "30rem" },
+        "3xl": { min: "120rem" },
+        tablet: { min: "1080px" },
+        mobile: { min: "620px" },
       },
       fontSize: {
         "size-14": "14px",

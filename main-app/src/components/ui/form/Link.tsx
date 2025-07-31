@@ -17,11 +17,12 @@ export default function LinkButton({
   href,
   children,
   variant = "primary",
+  onClick,
   ...props
 }: LinkButtonProps) {
   return (
-    <Link href={href} className={VARIANT_CLASSES[variant]} {...props}>
-      {children}
+    <Link className={VARIANT_CLASSES[variant]} href={href} {...props}>
+      <span onClick={onClick}>{children}</span>
     </Link>
   );
 }
