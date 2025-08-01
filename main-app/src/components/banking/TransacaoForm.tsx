@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Button from "../ui/form/Button";
@@ -11,30 +12,30 @@ import { useConta } from "../../contexts/ContaContext";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import "react-toastify/dist/ReactToastify.css"; // Adicione esta linha
+import { Transaction } from "../../types/transaction";
+import {
+  TRANSACTION_CATEGORIES,
+  TRANSACTION_TYPES,
+} from "../../utils/transactionsConstants";
+
 const formSchema = z.object({
-  tipoTransacao: z.enum(["Depósito", "Transferência", "Pagamento de Boleto"], {
-    message: "Tipo de transação é obrigatório",
-  }),
-  valor: z.coerce
+  type: z.string().min(1, { message: "Selecione um tipo de transação" }),
+  amount: z.coerce
     .number({
       message: "Valor inválido",
     })
     .min(0.01, { message: "O valor deve ser maior que zero" })
     .max(1000000, { message: "O valor deve ser menor que 1.000.000" }),
+  category: z.string().optional(),
+  recipient: z.string().optional(),
 });
 
 type Inputs = z.infer<typeof formSchema>;
 
-export type Transacao = {
-  tipoTransacao: string;
-  valor: number;
-  id?: string | number;
-};
-
 interface TransacaoFormProps {
   fecharModal?: () => void;
-  transacaoParaEditar?: Transacao | null;
-  onSave?: (transacao: Transacao) => void;
+  transacaoParaEditar?: Transaction | null;
+  onSave?: (transacao: Transaction) => void;
   modo?: "criar" | "editar";
 }
 
@@ -56,27 +57,29 @@ export default function TransacaoForm({
     resolver: zodResolver(formSchema),
     mode: "onBlur",
     defaultValues: {
-      tipoTransacao:
-        (transacaoParaEditar?.tipoTransacao as TipoTransacao) || undefined,
-      valor: transacaoParaEditar?.valor || undefined,
+      type: (transacaoParaEditar?.type as TipoTransacao) || undefined,
+      amount: transacaoParaEditar?.amount || undefined,
+      category: transacaoParaEditar?.category,
+      recipient: transacaoParaEditar?.recipient,
     },
   });
 
   useEffect(() => {
     // Update form when transacaoParaEditar changes
     if (transacaoParaEditar) {
-      setValue(
-        "tipoTransacao",
-        transacaoParaEditar.tipoTransacao as TipoTransacao
-      );
-      setValue("valor", transacaoParaEditar.valor);
+      setValue("type", transacaoParaEditar.type as TipoTransacao);
+      setValue("amount", transacaoParaEditar.amount);
+      setValue("category", transacaoParaEditar.category || ""); // Adicione fallback
+      setValue("recipient", transacaoParaEditar.recipient || ""); // Adicione fallback
     }
   }, [transacaoParaEditar, setValue]);
 
   function handleOnSubmit(data: Inputs) {
-    const transacao: Transacao = {
-      tipoTransacao: data.tipoTransacao as TipoTransacao,
-      valor: data.valor,
+    const transacao: any = {
+      type: data.type as TipoTransacao,
+      amount: data.amount,
+      recipient: data.recipient || undefined,
+      category: data.category || undefined,
       ...(transacaoParaEditar?.id ? { id: transacaoParaEditar.id } : {}),
     };
 
@@ -112,14 +115,14 @@ export default function TransacaoForm({
 
       if (
         errorMessage.toLowerCase().includes("saldo") ||
-        errorMessage.toLowerCase().includes("valor")
+        errorMessage.toLowerCase().includes("amount")
       ) {
-        setError("valor", {
+        setError("amount", {
           type: "manual",
           message: errorMessage,
         });
       } else {
-        setError("tipoTransacao", {
+        setError("type", {
           type: "manual",
           message: errorMessage,
         });
@@ -134,53 +137,65 @@ export default function TransacaoForm({
   return (
     <section className="flex flex-col w-full items-center justify-center xs:items-start xs:justify-start gap-2">
       {modo == "criar" && <h2 className="title pb-4">{formTitle}</h2>}
-      <form
-        onSubmit={handleSubmit(handleOnSubmit)}
-        className="pl-2 flex w-full"
-      >
-        <div className="flex flex-col w-full items-center justify-center xs:items-start xs:justify-start">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap:2 lg:gap-4 justify-between">
-            <div className="campo ">
-              <Label htmlFor="tipoTransacao" className="">
+      <form onSubmit={handleSubmit(handleOnSubmit)} className="p-2 flex w-full">
+        <div className="flex flex-col w-full justify-between xs:items-start xs:justify-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 justify-between">
+            <div className="campo">
+              <Label htmlFor="type" className="">
                 Tipo de Transação:
               </Label>
               <Select
-                options={[
-                  { value: "", label: "Selecione" },
-                  { value: "Depósito", label: "Depósito" },
-                  { value: "Transferência", label: "Transferência" },
-                  {
-                    value: "Pagamento de Boleto",
-                    label: "Pagamento de Boleto",
-                  },
-                ]}
-                id="tipoTransacao"
-                {...register("tipoTransacao")}
+                options={TRANSACTION_TYPES}
+                id="type"
+                {...register("type")}
               />
-              {errors.tipoTransacao && (
+              {errors.type && (
                 <p className="text-red-500 text-size-14 mt-1">
-                  {errors.tipoTransacao.message}
+                  {errors.type.message}
                 </p>
               )}
             </div>
-            <div className="campo pb-6">
+            <div className="campo">
               <Label htmlFor="valor">Valor:</Label>
               <Input
                 type="number"
-                id="valor"
+                id="amount"
                 placeholder="0,00"
                 step=".01"
                 min="0.01"
-                // className="max-w-40"
-                {...register("valor")}
+                {...register("amount")}
               />
-              {errors.valor && (
+              {errors.amount && (
                 <p className="text-red-500 text-size-14 mt-1">
-                  {errors.valor.message}
+                  {errors.amount.message}
                 </p>
               )}
             </div>
-            {modo !== "criar" && (
+            <div className="campo">
+              <Label htmlFor="category">Categoria:</Label>
+              <Select
+                options={TRANSACTION_CATEGORIES}
+                id="category"
+                {...register("category")}
+              />
+              {errors.category && (
+                <p className="text-red-500 text-size-14 mt-1">
+                  {errors.category?.message}
+                </p>
+              )}
+            </div>
+            <div className="campo">
+              <Label htmlFor="recipient">Remetente:</Label>
+              <Input type="string" id="recipient" {...register("recipient")} />
+              {errors.recipient && (
+                <p className="text-red-500 text-size-14 mt-1">
+                  {errors.recipient?.message}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-row justify-between gap-2 mt-4 pt-6">
+            {modo === "editar" && (
               <Button
                 variant="outline"
                 type="button"

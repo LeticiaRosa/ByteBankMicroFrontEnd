@@ -3,6 +3,9 @@ const remotes = require("./remotes");
 
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    fastRefresh: false, // Adicione esta linha temporariamente
+  },
   webpack: (config, options) => {
     const { isServer } = options;
     config.experiments = { topLevelAwait: true, layers: true };

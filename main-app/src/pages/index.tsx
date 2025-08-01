@@ -11,7 +11,9 @@ const DashboardComponent = dynamic(import("dashboard/Dashboard"), {
 export default function Home() {
   return (
     <ServiceLayout>
-      <DashboardComponent />
+      <section className="card min-h-50">
+        <DashboardComponent />
+      </section>
     </ServiceLayout>
   );
 }

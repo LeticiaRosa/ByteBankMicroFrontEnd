@@ -37,7 +37,7 @@
     @apply w-24 h-0.5 bg-preto border-0 rounded-sm hover:bg-verde-claro;
   }
   .card {
-    @apply flex flex-col items-start justify-start bg-white rounded-md shadow-lg text-black p-4;
+    @apply flex flex-col items-start justify-start bg-white rounded-md shadow-lg text-black p-4 min-w-64;
   }
   .campo {
     @apply flex flex-col py-2 gap-1 md:gap-2;

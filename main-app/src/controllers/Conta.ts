@@ -1,18 +1,12 @@
-import { Transacao } from "../components/banking/TransacaoForm";
+import React from "react";
 import { ValidaDebito } from "../decorators/validaDebito";
 import { ValidaDeposito } from "../decorators/validaDeposito";
+import { FilterOptions, Transaction } from "../types/transaction";
 import { Armazenador } from "./Armazenador";
-
-export type TransacaoType = {
-  tipoTransacao: TipoTransacao;
-  valor: number;
-  data: Date;
-  id: string;
-};
 
 export type GrupoTransacao = {
   label: string;
-  transacoes: TransacaoType[];
+  transacoes: Transaction[];
 };
 
 export enum TipoTransacao {
@@ -24,7 +18,7 @@ export enum TipoTransacao {
 export class Conta {
   protected nome: string;
   protected saldo: number = Number(Armazenador.obter<number>("saldo")) || 0;
-  private transacoes: TransacaoType[] = (() => {
+  private transacoes: Transaction[] = (() => {
     try {
       const storedData = Armazenador.obter<string>(
         "transacoes",
@@ -51,16 +45,16 @@ export class Conta {
 
   getGruposTransacoes(): GrupoTransacao[] {
     const gruposTransacoes: GrupoTransacao[] = [];
-    const listaTransacoes: TransacaoType[] = this.transacoes;
+    const listaTransacoes: Transaction[] = this.transacoes;
     const transacoesOrdenadas = listaTransacoes.sort(
-      (a, b) => new Date(b.data).getTime() - new Date(a.data).getTime()
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
 
     let labelAtualGrupoTransacao: string = "";
 
     for (const transacao of transacoesOrdenadas) {
       const labelGrupoTransacao: string = new Date(
-        transacao.data
+        transacao.date
       )?.toLocaleDateString("pt-br", {
         month: "long",
         year: "numeric",
@@ -89,20 +83,20 @@ export class Conta {
     return new Date();
   }
 
-  registrarTransacao(novaTransacao: Transacao): void {
-    const novaTransacaoComId = <TransacaoType>{
+  registrarTransacao(novaTransacao: Transaction): void {
+    const novaTransacaoComId = <Transaction>{
       ...novaTransacao,
       id: crypto.randomUUID(),
-      data: new Date(),
+      date: new Date(),
     };
-    if (novaTransacaoComId.tipoTransacao == TipoTransacao.DEPOSITO) {
-      this.depositar(novaTransacaoComId.valor);
+    if (novaTransacaoComId.type == TipoTransacao.DEPOSITO) {
+      this.depositar(novaTransacaoComId.amount);
     } else if (
-      novaTransacaoComId.tipoTransacao == TipoTransacao.TRANSFERENCIA ||
-      novaTransacaoComId.tipoTransacao == TipoTransacao.PAGAMENTO_BOLETO
+      novaTransacaoComId.type == TipoTransacao.TRANSFERENCIA ||
+      novaTransacaoComId.type == TipoTransacao.PAGAMENTO_BOLETO
     ) {
-      this.debitar(novaTransacaoComId.valor);
-      novaTransacaoComId.valor *= 1;
+      this.debitar(novaTransacaoComId.amount);
+      novaTransacaoComId.amount *= 1;
     } else {
       throw new Error("Tipo de Transação é inválido!");
     }
@@ -111,26 +105,26 @@ export class Conta {
   }
 
   @ValidaDebito
-  debitar(valor: number): void {
-    this.saldo -= valor;
+  debitar(amount: number): void {
+    this.saldo -= amount;
     Armazenador.salvar<string>("saldo", this.saldo.toString());
   }
 
   @ValidaDeposito
-  depositar(valor: number): void {
-    this.saldo += valor;
+  depositar(amount: number): void {
+    this.saldo += amount;
     Armazenador.salvar<string>("saldo", this.saldo.toString());
   }
 
   private calcularSaldoFinal(
-    transacoes: TransacaoType[],
+    transacoes: Transaction[],
     operacao: string
   ): number {
     const valorFinal = transacoes.reduce((acc, currentValue) => {
-      if (currentValue.tipoTransacao === TipoTransacao.DEPOSITO) {
-        acc += currentValue.valor;
+      if (currentValue.type === TipoTransacao.DEPOSITO) {
+        acc += currentValue.amount;
       } else {
-        acc -= currentValue.valor;
+        acc -= currentValue.amount;
       }
       return acc;
     }, 0);
@@ -142,13 +136,13 @@ export class Conta {
     return valorFinal;
   }
 
-  atualizarTransacao(novaTransacao: Transacao): void {
+  atualizarTransacao(novaTransacao: Transaction): void {
     const index = this.transacoes.findIndex(
       (transacao) => transacao.id === novaTransacao.id
     );
-    const novaTransacaoComNovaData = <TransacaoType>{
+    const novaTransacaoComNovaData = <Transaction>{
       ...novaTransacao,
-      data: new Date(),
+      date: new Date(),
     };
 
     if (index !== -1) {
@@ -182,6 +176,91 @@ export class Conta {
     } else {
       throw new Error("Transação não encontrada");
     }
+  }
+
+  /* Obtém a última transação do array*/
+  lastTransaction(): Transaction | null {
+    return this.transacoes.length > 0 ? this.transacoes[0] : null;
+  }
+
+  /* Agrupa as transações por mês e ano */
+  groupTransactionsByMonth(
+    transactions: Transaction[]
+  ): Record<string, Transaction[]> {
+    return transactions.reduce((grupos, transacao) => {
+      console.log(transacao.date);
+      const monthYear = `${transacao.date} de ${transacao.date
+        .toString()
+        .substring(0, 4)}`;
+      if (!grupos[monthYear]) {
+        grupos[monthYear] = [];
+      }
+      grupos[monthYear].push(transacao);
+      return grupos;
+    }, {} as Record<string, Transaction[]>);
+  }
+
+  /* Filtra transações baseado nos critérios fornecidos */
+  filterTransactions(filters: FilterOptions): Transaction[] {
+    return this.transacoes.filter((transacao) => {
+      // Filtro por tipo
+      if (filters.type && transacao.type !== filters.type) {
+        return false;
+      }
+
+      // Filtro por categoria
+      if (filters.category && transacao.category !== filters.category) {
+        return false;
+      }
+
+      // Filtro por remetente (busca parcial, case insensitive)
+      if (filters.recipient && transacao.recipient) {
+        const recipientMatch = transacao.recipient
+          .toLowerCase()
+          .includes(filters.recipient.toLowerCase());
+        if (!recipientMatch) {
+          return false;
+        }
+      } else if (filters.recipient && !transacao.recipient) {
+        return false;
+      }
+
+      // Filtro por valor mínimo
+      if (
+        filters.amountMin !== undefined &&
+        Math.abs(transacao.amount) < filters.amountMin
+      ) {
+        return false;
+      }
+
+      // Filtro por valor máximo
+      if (
+        filters.amountMax !== undefined &&
+        Math.abs(transacao.amount) > filters.amountMax
+      ) {
+        return false;
+      }
+
+      // Filtro por data de início
+      if (filters.dateFrom) {
+        const filterDate = new Date(filters.dateFrom);
+        const transactionDate = new Date(transacao.date);
+        if (transactionDate < filterDate) {
+          return false;
+        }
+      }
+
+      // Filtro por data fim
+      if (filters.dateTo) {
+        const filterDate = new Date(filters.dateTo);
+        const transactionDate = new Date(transacao.date);
+        if (transactionDate > filterDate) {
+          return false;
+        }
+      }
+
+      return true;
+    });
   }
 }
 

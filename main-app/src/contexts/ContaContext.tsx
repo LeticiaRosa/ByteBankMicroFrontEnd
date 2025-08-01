@@ -1,13 +1,18 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import Conta, { GrupoTransacao } from "../controllers/Conta";
-import { Transacao } from "../components/banking/TransacaoForm";
+import { FilterOptions, Transaction } from "../types/transaction";
 
 type ContaContextType = {
   saldo: number;
   gruposTransacoes: GrupoTransacao[];
-  registrarTransacao: (transacao: Transacao) => void;
-  atualizarTransacao: (transacao: Transacao) => void;
+  registrarTransacao: (transacao: Transaction) => void;
+  atualizarTransacao: (transacao: Transaction) => void;
   removerTransacao: (id: string) => void;
+  transacoesFiltradas: (filterOptions: FilterOptions) => Transaction[];
+  lastTransaction: () => Transaction | null;
+  groupTransactionsByMonth: (
+    transactions: Transaction[]
+  ) => Record<string, Transaction[]>;
 };
 
 const ContaContext = createContext({} as ContaContextType);
@@ -23,13 +28,13 @@ export function ContaProvider({ children }: { children: React.ReactNode }) {
     setGruposTransacoes(Conta.getGruposTransacoes());
   }, []);
 
-  function registrarTransacao(transacao: Transacao) {
+  function registrarTransacao(transacao: Transaction) {
     Conta.registrarTransacao(transacao);
     setGruposTransacoes(Conta.getGruposTransacoes());
     setSaldo(Conta.getSaldo());
   }
 
-  function atualizarTransacao(transacaoAtualizada: Transacao) {
+  function atualizarTransacao(transacaoAtualizada: Transaction) {
     Conta.atualizarTransacao(transacaoAtualizada);
     setGruposTransacoes(Conta.getGruposTransacoes());
     setSaldo(Conta.getSaldo());
@@ -41,6 +46,20 @@ export function ContaProvider({ children }: { children: React.ReactNode }) {
     setSaldo(Conta.getSaldo());
   }
 
+  function transacoesFiltradas(filterOptions: FilterOptions): Transaction[] {
+    return Conta.filterTransactions(filterOptions);
+  }
+
+  function lastTransaction(): Transaction | null {
+    return Conta.lastTransaction();
+  }
+
+  function groupTransactionsByMonth(
+    transactions: Transaction[]
+  ): Record<string, Transaction[]> {
+    return Conta.groupTransactionsByMonth(transactions);
+  }
+
   return (
     <ContaContext.Provider
       value={{
@@ -49,6 +68,9 @@ export function ContaProvider({ children }: { children: React.ReactNode }) {
         registrarTransacao,
         atualizarTransacao,
         removerTransacao,
+        transacoesFiltradas,
+        lastTransaction,
+        groupTransactionsByMonth,
       }}
     >
       {children}

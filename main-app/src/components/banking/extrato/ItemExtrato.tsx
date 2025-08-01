@@ -1,33 +1,62 @@
-import { Pencil, Trash } from "phosphor-react";
+import React from "react";
+import {
+  DotsThreeVertical,
+  Pencil,
+  PencilSimple,
+  Trash,
+  TrashSimple,
+  Warning,
+} from "phosphor-react";
 import { Separador } from "../../ui/form/Separador";
 import Button from "../../ui/form/Button";
-import { formatadorValor } from "../../../utils/formatadorValor";
+import {
+  formatadorData,
+  formatadorValor,
+} from "../../../utils/formatadorValor";
 import { useConta } from "../../../contexts/ContaContext";
 import { toast } from "react-toastify";
 import Modal from "../../ui/Modal";
 import { useState } from "react";
+import {
+  getCategoryLabel,
+  getTransactionTypeLabel,
+} from "../../../utils/transactionsConstants";
 
 interface ItemExtratoProps {
+  typeItemExtrato?: "LastTransaction" | "Transaction";
   id: string;
-  tipo: string;
-  valor: number;
-  data: string;
+  type: string;
+  amount: number;
+  date: Date;
+  recipient?: string;
+  category?: string;
   onEditar?: (id: string) => void;
 }
 
 export default function ItemExtrato({
+  typeItemExtrato = "Transaction",
   id,
-  tipo,
-  valor,
-  data,
+  type,
+  amount,
+  date,
+  recipient,
+  category,
   onEditar,
 }: ItemExtratoProps) {
   const { removerTransacao } = useConta();
-  const valorFormatado = formatadorValor.format(valor);
+  const valorFormatado = formatadorValor.format(amount);
   const [openModal, setOpenModal] = useState(false);
+  const [activeActionMenu, setActiveActionMenu] = useState(false);
+
+  // Fecha o menu de ações quando clicado fora
+  const handleClickOutside = () => {
+    setActiveActionMenu(false);
+  };
+
   function handleModalClose() {
     setOpenModal(false);
   }
+
   const handleExcluir = (id: string) => {
     try {
       removerTransacao(id);
@@ -37,48 +66,111 @@ export default function ItemExtrato({
     }
   };
   return (
-    <div>
-      <div
-        key={id}
-        className={`transacao-item ${
-          tipo === "Depósito" ? "text-verde-light" : "text-laranja-grafico"
-        }`}
-      >
-        <div className="flex flex-row items-center gap-4 justify-between w-full">
-          <p className=" text-nowrap">{tipo}</p>
-          <p className="text-gray-500 text-xs ">
-            {new Date(data).toLocaleDateString("pt-BR", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-            })}
+    <div
+      className={`${
+        typeItemExtrato === "Transaction"
+          ? "transacao-item border-b-2 border-gray-200 pb-4 mb-4 w-full"
+          : "transacao-item pb-2 w-full"
+      }`}
+    >
+      <div className="flex justify-between items-start w-full">
+        <div className="flex-1 pr-4">
+          <p className="text-base font-medium text-gray-800 mb-1">
+            {getTransactionTypeLabel(type)}
+          </p>
+          {typeItemExtrato === "Transaction" && (
+            <>
+              {recipient && (
+                <p className="text-xs text-gray-600 mb-1">Para: {recipient}</p>
+              )}
+              {category && (
+                <p className="text-xs text-gray-600 mb-1">
+                  Categoria: {getCategoryLabel(category)}
+                </p>
+              )}
+            </>
+          )}
+          <p
+            className={`text-base font-bold ${
+              amount < 0 ? "text-secondary" : "text-green"
+            }`}
+          >
+            {amount < 0 ? "" : "+"}
+            {formatadorValor.format(amount)}
           </p>
         </div>
-        <div className="flex flex-row items-center justify-between w-full">
-          <h6 className="pr-4">{valorFormatado}</h6>
-          <div className="flex flex-row gap-2">
-            <Button
-              variant="icon"
-              onClick={() => {
-                if (onEditar) onEditar(id);
+        <div className="flex flex-col items-end">
+          {/* <p className="text-gray-500 text-sm mb-2">
+            {formatadorData.format(new Date(date))}
+          </p> */}
+
+          {/* Botão de ações */}
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveActionMenu(true);
               }}
+              aria-label="Opções"
+              className="p-1 hover:bg-gray-100 rounded"
             >
-              <Pencil />
-            </Button>
-            <Button variant="icon" onClick={() => setOpenModal(true)}>
-              <Trash />
-            </Button>
+              <DotsThreeVertical size={22} />
+            </button>
+            {/* Menu de ações */}
+            {activeActionMenu && (
+              <div
+                className="card absolute right-2 z-10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    if (onEditar) onEditar(id);
+                    setActiveActionMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 hover:text-gray-800  flex items-center"
+                  // disabled={!onEditTransaction}
+                >
+                  <PencilSimple size={16} className="mr-2" />
+                  Editar
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setOpenModal(true);
+                    setActiveActionMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-secondary hover:bg-red-100 hover:text-red-600 flex items-center"
+                  // disabled={!onDeleteTransaction}
+                >
+                  <TrashSimple size={16} className="mr-2" />
+                  Excluir
+                </Button>
+              </div>
+            )}
           </div>
         </div>
-
-        <Separador size="large" />
       </div>
+      {/* Overlay para fechar o menu quando clicado fora */}
+      {activeActionMenu && (
+        <div className="fixed inset-0 z-0" onClick={handleClickOutside} />
+      )}
+
       {openModal && (
-        <Modal
-          title="Você tem certeza que deseja excluir esta transação?"
-          onClose={handleModalClose}
-        >
-          <p>Caso você exclua esta transação, ela não poderá ser recuperada.</p>
+        <Modal onClose={handleModalClose}>
+          <div className="text-center mb-6">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+              <Warning size={24} className="text-red-600" />
+            </div>
+            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-1">
+              Confirmar exclusão
+            </h3>
+            <p className="text-sm text-gray-500">
+              Tem certeza que deseja excluir esta transação?
+              <br />
+              Esta ação não pode ser desfeita.
+            </p>
+          </div>
           <div className="flex justify-between gap-2 mt-4 pt-6">
             <Button variant="outline" onClick={handleModalClose}>
               Cancelar
