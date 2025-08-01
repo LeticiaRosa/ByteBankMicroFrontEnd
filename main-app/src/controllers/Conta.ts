@@ -188,10 +188,10 @@ export class Conta {
     transactions: Transaction[]
   ): Record<string, Transaction[]> {
     return transactions.reduce((grupos, transacao) => {
-      console.log(transacao.date);
-      const monthYear = `${transacao.date} de ${transacao.date
-        .toString()
-        .substring(0, 4)}`;
+      const date = new Date(transacao.date);
+      const month = date.toLocaleString("pt-br", { month: "long" });
+      const year = date.getFullYear();
+      const monthYear = `${month} de ${year}`;
       if (!grupos[monthYear]) {
         grupos[monthYear] = [];
       }

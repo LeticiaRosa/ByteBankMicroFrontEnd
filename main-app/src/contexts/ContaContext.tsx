@@ -30,8 +30,11 @@ export function ContaProvider({ children }: { children: React.ReactNode }) {
 
   function registrarTransacao(transacao: Transaction) {
     Conta.registrarTransacao(transacao);
+    console.log("Transação registrada:", transacao);
     setGruposTransacoes(Conta.getGruposTransacoes());
+    console.log("Grupos de transações atualizados:", gruposTransacoes);
     setSaldo(Conta.getSaldo());
+    console.log("Saldo atualizado:", Conta.getSaldo());
   }
 
   function atualizarTransacao(transacaoAtualizada: Transaction) {

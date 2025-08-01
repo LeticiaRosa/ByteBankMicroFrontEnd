@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useConta } from "../../../contexts/ContaContext";
 import TransacaoForm from "../TransacaoForm";
 import ItemExtrato from "./ItemExtrato";
@@ -11,6 +11,8 @@ import TransactionFilter from "../TransactionFilter";
 import LoadingSpinner from "../../ui/form/LoadingSpinner";
 
 export default function Extrato() {
+  const [isClient, setIsClient] = useState(false);
+
   const { gruposTransacoes } = useConta();
   // Estados para filtros e modal
   const [activeFilters, setActiveFilters] = useState<FilterOptions>({});
@@ -60,6 +62,20 @@ export default function Extrato() {
     setActiveFilters({});
   };
 
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <aside className="card max-md:items-center relative">
+        <h3 className="title pb-8">Extrato</h3>
+        <div className="flex justify-center items-center py-8">
+          <LoadingSpinner text="Carregando extrato..." />
+        </div>
+      </aside>
+    );
+  }
   return (
     <aside className="card max-md:items-center relative">
       <h3 className="title pb-8">Extrato</h3>
