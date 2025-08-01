@@ -21,7 +21,7 @@ import {
 const formSchema = z.object({
   type: z.string().min(1, { message: "Selecione um tipo de transação" }),
   amount: z.coerce
-    .number({
+    .number<number>({
       message: "Valor inválido",
     })
     .min(0.01, { message: "O valor deve ser maior que zero" })
@@ -57,8 +57,8 @@ export default function TransacaoForm({
     resolver: zodResolver(formSchema),
     mode: "onBlur",
     defaultValues: {
-      type: (transacaoParaEditar?.type as TipoTransacao) || undefined,
-      amount: transacaoParaEditar?.amount || undefined,
+      type: (transacaoParaEditar?.type as TipoTransacao) || "",
+      amount: transacaoParaEditar?.amount || 0,
       category: transacaoParaEditar?.category,
       recipient: transacaoParaEditar?.recipient,
     },
@@ -75,7 +75,7 @@ export default function TransacaoForm({
   }, [transacaoParaEditar, setValue]);
 
   function handleOnSubmit(data: Inputs) {
-    const transacao: any = {
+    const transacao: Transaction = {
       type: data.type as TipoTransacao,
       amount: data.amount,
       recipient: data.recipient || undefined,
@@ -104,6 +104,11 @@ export default function TransacaoForm({
       // Only reset if creating a new transaction
       if (modo === "criar") {
         reset();
+      }
+
+      // Força atualização do componente pai
+      if (fecharModal) {
+        setTimeout(() => fecharModal(), 100); // Pequeno delay para garantir que o contexto foi atualizado
       }
     } catch (error) {
       const errorMessage =

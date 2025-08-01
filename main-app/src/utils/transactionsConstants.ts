@@ -16,6 +16,7 @@ export const TRANSACTION_CATEGORIES: SelectOption[] = [
   { value: "clothing", label: "Vestuário" },
   { value: "gifts", label: "Presentes" },
   { value: "travel", label: "Viagens" },
+  { value: "credit", label: "Cartão de Crédito" },
   { value: "other", label: "Outros" },
 ];
 

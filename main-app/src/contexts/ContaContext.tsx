@@ -9,7 +9,7 @@ type ContaContextType = {
   atualizarTransacao: (transacao: Transaction) => void;
   removerTransacao: (id: string) => void;
   transacoesFiltradas: (filterOptions: FilterOptions) => Transaction[];
-  lastTransaction: () => Transaction | null;
+  lastTransaction: (gruposTransacoes: Transaction[]) => Transaction | null;
   groupTransactionsByMonth: (
     transactions: Transaction[]
   ) => Record<string, Transaction[]>;
@@ -30,11 +30,8 @@ export function ContaProvider({ children }: { children: React.ReactNode }) {
 
   function registrarTransacao(transacao: Transaction) {
     Conta.registrarTransacao(transacao);
-    console.log("Transação registrada:", transacao);
     setGruposTransacoes(Conta.getGruposTransacoes());
-    console.log("Grupos de transações atualizados:", gruposTransacoes);
     setSaldo(Conta.getSaldo());
-    console.log("Saldo atualizado:", Conta.getSaldo());
   }
 
   function atualizarTransacao(transacaoAtualizada: Transaction) {
@@ -53,8 +50,10 @@ export function ContaProvider({ children }: { children: React.ReactNode }) {
     return Conta.filterTransactions(filterOptions);
   }
 
-  function lastTransaction(): Transaction | null {
-    return Conta.lastTransaction();
+  function lastTransaction(
+    gruposTransacoes: Transaction[]
+  ): Transaction | null {
+    return Conta.lastTransaction(gruposTransacoes);
   }
 
   function groupTransactionsByMonth(

@@ -67,7 +67,7 @@ export default function TransactionFilter({
           <FunnelSimple size={16} />
           Filtrar
           {hasActiveFilters && (
-            <span className="bg-green text-white rounded-full px-2 py-1 text-xs">
+            <span className="bg-verde text-white rounded-full px-2 py-1 text-xs">
               {getActiveFilterCount()}
             </span>
           )}

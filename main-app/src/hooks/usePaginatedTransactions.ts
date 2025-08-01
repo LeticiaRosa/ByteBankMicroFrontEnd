@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { FilterOptions, Transaction } from "../types/transaction";
 import { useConta } from "../contexts/ContaContext";
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 export const usePaginatedTransactions = (filters: FilterOptions) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,7 +17,7 @@ export const usePaginatedTransactions = (filters: FilterOptions) => {
   // Filtrar todas as transações
   const allFilteredTransactions: Transaction[] = useMemo(() => {
     return transacoesFiltradas(filters);
-  }, [filters]);
+  }, [filters, gruposTransacoes]);
 
   // Transações visíveis (paginadas)
   const visibleTransactions: Transaction[] = useMemo(() => {
@@ -31,7 +31,7 @@ export const usePaginatedTransactions = (filters: FilterOptions) => {
 
   // Última transação
   const lastTransaction: Transaction = useMemo(() => {
-    return ultima_transacao();
+    return ultima_transacao(allFilteredTransactions);
   }, [allFilteredTransactions]);
 
   // Transações agrupadas por mês (apenas as visíveis)

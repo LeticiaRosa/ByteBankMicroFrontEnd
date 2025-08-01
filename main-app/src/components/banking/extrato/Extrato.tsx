@@ -68,7 +68,7 @@ export default function Extrato() {
 
   if (!isClient) {
     return (
-      <aside className="card max-md:items-center relative">
+      <aside className="card max-md:items-center relative min-w-80">
         <h3 className="title pb-8">Extrato</h3>
         <div className="flex justify-center items-center py-8">
           <LoadingSpinner text="Carregando extrato..." />
@@ -91,7 +91,7 @@ export default function Extrato() {
         {/* Última operação realizada */}
         {lastTransaction && (
           <div className="mb-4 w-full max-w-96 max-sm:max-w-full">
-            <div className="border-l-4 border-primary pl-4">
+            <div className="border-l-4 border-verde pl-4">
               <h3 className="text-lg font-semibold text-gray-800 ">
                 Última operação
               </h3>

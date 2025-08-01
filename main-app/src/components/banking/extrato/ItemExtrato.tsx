@@ -21,6 +21,7 @@ import {
   getCategoryLabel,
   getTransactionTypeLabel,
 } from "../../../utils/transactionsConstants";
+import { datetime } from "zod/v4/core/regexes";
 
 interface ItemExtratoProps {
   typeItemExtrato?: "LastTransaction" | "Transaction";
@@ -90,19 +91,25 @@ export default function ItemExtrato({
               )}
             </>
           )}
+
           <p
+            key={id}
             className={`text-base font-bold ${
-              amount < 0 ? "text-secondary" : "text-green"
+              type === "Depósito" ? "text-verde-light" : "text-erro"
             }`}
           >
-            {amount < 0 ? "" : "+"}
+            {`${type === "Depósito" ? "+" : "-"}`}
             {formatadorValor.format(amount)}
           </p>
         </div>
         <div className="flex flex-col items-end">
-          {/* <p className="text-gray-500 text-sm mb-2">
-            {formatadorData.format(new Date(date))}
-          </p> */}
+          <p className="text-gray-500 text-xs ">
+            {new Date(date).toLocaleDateString("pt-BR", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            })}
+          </p>
 
           {/* Botão de ações */}
           <div className="relative">
@@ -140,7 +147,7 @@ export default function ItemExtrato({
                     setOpenModal(true);
                     setActiveActionMenu(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm text-secondary hover:bg-red-100 hover:text-red-600 flex items-center"
+                  className="w-full text-left px-4 py-2 text-sm text-erro hover:bg-red-100 hover:text-red-600 flex items-center"
                   // disabled={!onDeleteTransaction}
                 >
                   <TrashSimple size={16} className="mr-2" />

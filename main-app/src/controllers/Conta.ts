@@ -179,8 +179,8 @@ export class Conta {
   }
 
   /* Obtém a última transação do array*/
-  lastTransaction(): Transaction | null {
-    return this.transacoes.length > 0 ? this.transacoes[0] : null;
+  lastTransaction(gruposTransacoes: Transaction[]): Transaction | null {
+    return gruposTransacoes.length > 0 ? gruposTransacoes[0] : null;
   }
 
   /* Agrupa as transações por mês e ano */
