@@ -4,7 +4,7 @@
   "scripts": {
     "dev:dashboard": "pnpm --filter dashboard run dev",
     "dev:main-app": "pnpm --filter main-app run dev",
-    "dev:all": "concurrently -k -n dash,main  \"pnpm dev:dashboard\" \"pnpm dev:main-app\"",
+    "dev:all": "concurrently -k -n dash,main -c green,yellow \"pnpm dev:dashboard\" \"pnpm dev:main-app\"",
     "build": "pnpm -r run build",
     "deploy:api": "cd json-server && vercel --prod",
     "deploy:all": "cd json-server && vercel --prod && cd ../dashboard && vercel --prod && cd ../main-app && vercel --prod"
