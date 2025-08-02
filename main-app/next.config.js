@@ -19,22 +19,22 @@ const nextConfig = {
             dashboard: remotes.dashboard,
           },
           filename: "static/chunks/remoteEntry.js",
-          shared: {
-            react: {
-              singleton: true,
-              requiredVersion: "^18.3.1",
-              strictVersion: true,
-            },
-            "react-dom": {
-              singleton: true,
-              requiredVersion: "^18.3.1",
-              strictVersion: true,
-            },
-            recharts: {
-              singleton: true,
-              requiredVersion: "^3.1.0",
-            },
-          },
+          // shared: {
+          //   react: {
+          //     singleton: true,
+          //     requiredVersion: "^18.3.1",
+          //     strictVersion: true,
+          //   },
+          //   "react-dom": {
+          //     singleton: true,
+          //     requiredVersion: "^18.3.1",
+          //     strictVersion: true,
+          //   },
+          //   recharts: {
+          //     singleton: true,
+          //     requiredVersion: "^3.1.0",
+          //   },
+          // },
         })
       );
     }

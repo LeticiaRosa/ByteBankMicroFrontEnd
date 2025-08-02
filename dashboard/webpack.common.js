@@ -33,23 +33,8 @@ module.exports = {
         "./Dashboard": "./src/bootstrap.tsx",
       },
       shared: {
-        react: {
-          singleton: true,
-          requiredVersion: "^18.3.1",
-          eager: false,
-          strictVersion: true, // Força versão exata
-        },
-        "react-dom": {
-          singleton: true,
-          requiredVersion: "^18.3.1",
-          eager: false,
-          strictVersion: true, // Força versão exata
-        },
-        recharts: {
-          singleton: true,
-          requiredVersion: "^3.1.0",
-          eager: false,
-        },
+        react: { singleton: true, requiredVersion: "18.3.1" },
+        "react-dom": { singleton: true, requiredVersion: "18.3.1" },
       },
     }),
     new HtmlWebpackPlugin({
