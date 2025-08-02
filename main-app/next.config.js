@@ -1,44 +1,29 @@
-const { ModuleFederationPlugin } = require("webpack").container;
+const { NextFederationPlugin } = require("@module-federation/nextjs-mf");
 const remotes = require("./remotes");
 
 const nextConfig = {
-  reactStrictMode: false, // Desabilitar para evitar problemas com Module Federation
-  experimental: {
-    esmExternals: false, // Importante para Module Federation
-  },
+  reactStrictMode: true,
   webpack: (config, options) => {
     const { isServer } = options;
+    config.experiments = { topLevelAwait: true, layers: true };
 
-    // Configurações específicas para cliente
-    if (!isServer) {
-      config.experiments = { topLevelAwait: true, layers: true };
-      config.plugins.push(
-        new ModuleFederationPlugin({
-          name: "main",
-          remotes: {
-            dashboard: remotes.dashboard,
-          },
-          filename: "static/chunks/remoteEntry.js",
-          // shared: {
-          //   react: {
-          //     singleton: true,
-          //     requiredVersion: "^18.3.1",
-          //     strictVersion: true,
-          //   },
-          //   "react-dom": {
-          //     singleton: true,
-          //     requiredVersion: "^18.3.1",
-          //     strictVersion: true,
-          //   },
-          //   recharts: {
-          //     singleton: true,
-          //     requiredVersion: "^3.1.0",
-          //   },
-          // },
-        })
-      );
-    }
-
+    config.plugins.push(
+      new NextFederationPlugin({
+        name: "main",
+        remotes: {
+          dashboard: remotes.dashboard,
+        },
+        filename: "static/chunks/remoteEntry.js",
+        extraOptions: {
+          exposePages: true,
+          automaticAsyncBoundary: true,
+        },
+        // exposes: {
+        //   './footer': './components/Footer.js',
+        //   './nav': './components/Nav.js'
+        // }
+      })
+    );
     return config;
   },
 };

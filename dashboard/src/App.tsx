@@ -33,7 +33,7 @@ function AppDashboard() {
         />
       </div>
 
-      {/* <TransactionChart data={data} /> */}
+      <TransactionChart data={data} />
     </main>
   );
 }

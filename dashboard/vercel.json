@@ -11,8 +11,16 @@
     }
   ],
   "routes": [
-    { "handle": "filesystem" },
-    { "src": "/remoteEntry.js", "dest": "/remoteEntry.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/remoteEntry.js",
+      "dest": "/remoteEntry.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
